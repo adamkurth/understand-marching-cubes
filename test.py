@@ -9,7 +9,6 @@ from LorensenLookUpTable import(
     DirectionZ,
 )
 
-
 def interpolate(a, b, level):
     if a == b:
         return 0.05
@@ -34,9 +33,9 @@ def marching(volume, level=0.0):
     def calculate_vertex_id(x, y, z, direction):
         return (x + y * dimX + z * dimXY) * 3 + direction
 
-    for z in range(dimZ - 1):
-        for y in range(dimY - 1):
-            for x in range(dimX - 1):
+    for z in range(dimZ):
+        for y in range(dimY):
+            for x in range(dimX):
                 
                 def edge_to_vertex_id(edge_number):
                     dx, dy, dz = EDGE_DELTA[edge_number]
@@ -44,21 +43,24 @@ def marching(volume, level=0.0):
                     return calculate_vertex_id(x + dx, y + dy, z + dz, direction)
                     
                 # Check for a surface crossing and create vertices
-                if volume_test[z, y, x] != volume_test[z, y, x + 1]:
+                if x < (dimX - 1) and volume_test[z, y, x] != volume_test[z, y, x + 1]:
                     delta = interpolate(volume[z, y, x], volume[z, y, x + 1], level)
                     vertices.append([x + delta, y, z])
                     vertex_ids.append(calculate_vertex_id(x, y, z, DirectionX))
 
-                if volume_test[z, y, x] != volume_test[z, y + 1, x]:
+                if y < (dimY - 1) and volume_test[z, y, x] != volume_test[z, y + 1, x]:
                     delta = interpolate(volume[z, y, x], volume[z, y + 1, x], level)
                     vertices.append([x, y + delta, z])
                     vertex_ids.append(calculate_vertex_id(x, y, z, DirectionY))
 
-                if volume_test[z, y, x] != volume_test[z + 1, y, x]:
+                if z < (dimZ - 1) and volume_test[z, y, x] != volume_test[z + 1, y, x]:
                     delta = interpolate(volume[z, y, x], volume[z + 1, y, x], level)
                     vertices.append([x, y, z + delta])
                     vertex_ids.append(calculate_vertex_id(x, y, z, DirectionZ))
 
+                if x == (dimX - 1) or y == (dimY - 1) or z == (dimZ - 1):
+                    continue
+                    
                 # calculate volume type
                 # calculating volume type: 2**8 = 256 possible configurations
                 # in same direction: add 1 (x,y,z)
@@ -105,16 +107,37 @@ def marching(volume, level=0.0):
     order_of_ids = {id: order for order, id in enumerate(vertex_ids)}
     for triangle_corners in triangle_ids:
         triangles.append([order_of_ids[id] for id in triangle_corners])
-
-
-    return vertices, triangle_ids, vertex_ids
+        
+    return vertices, triangle_ids
 
 
 if __name__ == "__main__":
     volume = np.load('test_volume.npy')
-    level = 0.05
-    print(f'volume loaded with shape {volume.shape}')
-    print(f'processing volume with level {level}')
-    vertices, triangles, vertex_ids = marching(volume, level)
-    print(f'marching {len(vertices)} vertices and {len(triangles)} triangles')
+    print(f'Volume loaded with shape {volume.shape}')
     
+    for level in [0.05, -0.05, 0.0005, -0.0005]:
+        print(f'Processing volume with level {level}', '\n\n')
+        vertices, triangles = marching(volume, level)
+        
+        import skimage
+        vertices_sk, triangles_sk, _, _ = skimage.measure.marching_cubes(volume, level=level, method="lorensen")
+        vertices_sk = vertices_sk.tolist()
+        
+        print('Comparing results with skimage')
+        print(f'Marching {len(vertices)} vertices and {len(triangles)} triangles')
+        print(f'skimage {len(vertices_sk)} vertices and {len(triangles_sk)} triangles')
+        print()
+        
+        vertices.sort()
+        vertices_sk.sort()
+        print('Comparing vertices')
+        print(vertices[:10])
+        print(vertices_sk[:10])
+        
+        np.savez(f"/tmp/marching_{level}.npz", 
+                    vertices=vertices, 
+                    triangles=triangles, 
+                    vertices_sk=vertices_sk,
+                    triangles_sk=triangles_sk
+                    )
+        
