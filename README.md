@@ -4,9 +4,15 @@ runme:
   version: v2.0
 ---
 
-## Marching Cubes Repository
+## Understanding Marching Cubes
 
 #### Theory and Understanding
+
+https://youtu.be/1FyokQuXmsc?si=slH3P9AkLZly6r7I
+
+https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html
+
+https://youtu.be/M3iI2l0ltbE?si=9Q1xyt8-s70E0MSg
 
 We have a function $f(x,y,z) → v$.
 
@@ -16,10 +22,9 @@ The white points represent the object, and black empty space. The white points r
 
 **Goal**: Construct the surface marching cubes algorithm is to construct the surface from the points and display it as a mesh.
 
+#### *Simplified*
 
-#### *Simplified* 
-
-A cube contains 8 vertices, either inside or outside the shape. This gives $2^8$ possible configurations. 
+A cube contains 8 vertices, either inside or outside the shape. This gives $2^8$ possible configurations.
 
 When one point is active within the shape, this gives us a triangle. If the vertex above is active, then this gives is a plane intersecting the $xy$-axis, etc...
 
