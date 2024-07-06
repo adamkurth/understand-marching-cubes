@@ -1,18 +1,12 @@
----
-runme:
-  id: 01HJYB3G69J4XCQXWTRHXG8FDN
-  version: v2.0
----
-
 ## Understanding Marching Cubes
 
 #### Theory and Understanding
 
-https://youtu.be/1FyokQuXmsc?si=slH3P9AkLZly6r7I
+[Boyer Research: Numpy Marching Cubes](https://youtu.be/1FyokQuXmsc?si=slH3P9AkLZly6r7I)
 
-https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html
+[scikit-image plot marching cubes](https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html)
 
-https://youtu.be/M3iI2l0ltbE?si=9Q1xyt8-s70E0MSg
+[Coding Adventures](https://youtu.be/M3iI2l0ltbE?si=9Q1xyt8-s70E0MSg)
 
 We have a function $f(x,y,z) → v$.
 
@@ -32,7 +26,7 @@ Only 14 unique cases, the rest are symmetries.
 
 - Ex) Corner points 7 5 1 from 7 6 5 4 3 2 1 0 are active and converting to binary ⇒ 1 0 1 0 0 0 1 0 = 162
 
-```python {"id":"01HJYC04KAEKDVXHPSQTTPJ9NB"}
+```python
 # code to find index 
 cube_index = 0
 for i in range(1, 9):
